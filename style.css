@@ -1,42 +1,44 @@
-/* --- CONFIGURATION DES THÈMES --- */
-.theme-dark { --bg: #0f0c29; --card: rgba(255,255,255,0.05); --text: #fff; --primary: #e94560; }
-.theme-light { --bg: #f0f2f5; --card: #ffffff; --text: #333; --primary: #007bff; }
-.theme-cyber { --bg: #000; --card: rgba(0, 255, 255, 0.05); --text: #0ff; --primary: #0ff; --border: #0ff; }
-.theme-mc { --bg: #313131; --card: #c6c6c6; --text: #000; --primary: #3c8527; }
+/* --- VARIABLES DES THÈMES --- */
+.theme-main { --bg: #050505; --text: #fff; --primary: #00d2ff; }
+.theme-dark { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --primary: #58a6ff; }
+.theme-cyber { --bg: #000; --card: rgba(0,0,0,0.8); --text: #0ff; --primary: #f0f; --border: #0ff; }
+.theme-mc { --bg: #4a4a4a; --card: #c6c6c6; --text: #000; --primary: #3c8527; }
+.theme-light { --bg: #f5f5f5; --card: #fff; --text: #222; --primary: #007bff; }
 
-/* --- STYLE COMMUN --- */
+/* --- STYLE GLOBAL --- */
 body {
+    margin: 0; font-family: 'Inter', sans-serif;
     background: var(--bg); color: var(--text);
-    font-family: 'Segoe UI', sans-serif;
-    display: flex; align-items: center; justify-content: center;
-    height: 100vh; margin: 0; transition: 0.5s;
+    display: flex; align-items: center; justify-content: center; height: 100vh;
+    transition: all 0.4s ease;
 }
 
 .auth-card {
-    background: var(--card);
-    backdrop-filter: blur(10px);
+    background: var(--card, rgba(255,255,255,0.05));
     border: 1px solid var(--border, rgba(255,255,255,0.1));
-    padding: 30px; border-radius: 20px;
-    width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    padding: 30px; border-radius: 20px; width: 340px; text-align: center;
+    backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
-.qr-box { background: white; padding: 10px; border-radius: 10px; width: 120px; margin: 20px auto; }
-.qr-box img { width: 100%; }
+.qr-container { background: white; padding: 10px; border-radius: 12px; width: 130px; margin: 20px auto; }
+.qr-container img { width: 100%; }
+.qr-container p { color: #333; font-size: 10px; margin-top: 5px; font-weight: bold; text-transform: uppercase; }
 
-.oauth-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-.oa { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; color: white; font-size: 1.2rem; }
-.google { background: #db4437; } .discord { background: #5865f2; } .github { background: #333; }
+.social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+.s-btn { height: 45px; border: none; border-radius: 10px; color: white; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+.ggl { background: #ea4335; } .dsc { background: #5865f2; } .gth { background: #333; } .glb { background: #fc6d26; }
+.s-btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
 
-input {
-    width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px;
-    border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box;
+.field input {
+    width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: inherit; box-sizing: border-box;
 }
 
-.btn-main {
-    width: 100%; padding: 10px; background: var(--primary);
-    border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer;
+.submit-btn {
+    width: 100%; padding: 12px; background: var(--primary); border: none;
+    color: white; font-weight: bold; border-radius: 8px; cursor: pointer;
 }
 
-/* Thème Minecraft spécifique */
-.theme-mc .auth-card { border: 4px solid #555; border-style: outset; }
-.theme-mc .btn-main { border: 2px solid #000; }
+.hidden { display: none; }
+.divider { margin: 20px 0; font-size: 10px; color: #777; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; }
+.divider span { position: absolute; top: -7px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 10px; }
