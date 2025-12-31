@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 - Précision Atomique</title>
+    <title>Réveillon Paris 2026</title>
     <style>
         body {
             background: #000;
             color: #fff;
-            font-family: 'Helvetica', sans-serif;
+            font-family: 'Courier New', Courier, monospace; /* Style horloge */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,122 +18,137 @@
             overflow: hidden;
         }
 
+        #timer-container { text-align: center; }
+
         #countdown {
-            font-size: clamp(5rem, 20vw, 12rem);
-            font-weight: 900;
-            font-variant-numeric: tabular-nums; /* Évite que les chiffres bougent */
+            font-size: 10vw;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
         }
 
-        .controls { position: fixed; bottom: 20px; display: flex; gap: 10px; }
+        #ms {
+            font-size: 4vw;
+            color: #555;
+            margin-left: 10px;
+        }
+
+        .city { font-size: 1.5rem; color: #888; margin-bottom: 20px; letter-spacing: 5px; }
+
+        .controls { position: fixed; bottom: 30px; display: flex; gap: 10px; }
         
         button {
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            border: 1px solid #444;
             cursor: pointer;
             font-weight: bold;
+            background: #222;
+            color: white;
         }
 
-        #startBtn { background: #00ff88; }
-        #testBtn { background: #333; color: white; }
+        #startBtn { background: #00ff88; color: #000; border: none; }
 
-        .new-year {
+        .happy-new-year {
             display: none;
-            font-size: 5rem;
+            font-size: 6vw;
             text-align: center;
-            color: #ffd700;
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-            animation: zoom 0.5s ease-out;
+            color: gold;
+            text-shadow: 0 0 50px orange;
+            animation: celebrate 0.5s infinite alternate;
         }
 
-        @keyframes zoom { from { transform: scale(0.5); } to { transform: scale(1); } }
+        @keyframes celebrate { from { transform: scale(1); } to { transform: scale(1.05); } }
         .flash { background: white !important; }
     </style>
 </head>
 <body>
 
-    <div id="countdown">PRÊT ?</div>
-    <div id="newYearMessage" class="new-year">✨ 2026 ✨<br>BONNE ANNÉE !</div>
+    <div class="city">PARIS / FRANCE</div>
+    <div id="timer-container">
+        <span id="countdown">--:--</span><span id="ms">000</span>
+    </div>
+    <div id="newYearMessage" class="happy-new-year">🎆 BONNE ANNÉE 2026 🎆</div>
 
     <div class="controls">
-        <button id="startBtn">DÉMARRER LE DIRECT</button>
-        <button id="testBtn">TESTER (10s)</button>
+        <button id="startBtn">ACTIVER L'HEURE DE PARIS</button>
+        <button id="testBtn">TEST (10s)</button>
     </div>
 
     <script>
         const countdownEl = document.getElementById('countdown');
+        const msEl = document.getElementById('ms');
         const messageEl = document.getElementById('newYearMessage');
         const synth = window.speechSynthesis;
         
-        let lastSecond = -1;
+        let lastSecondTriggered = -1;
         let isTest = false;
         let testTarget = 0;
 
         function speak(text) {
-            // Force l'arrêt de la voix précédente pour éviter le cumul
             synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'fr-FR';
-            utter.rate = 1.3; // Un peu plus vif
+            utter.rate = 1.2;
             synth.speak(utter);
         }
 
-        function tick() {
+        function getParisTime() {
+            // Création de la date cible : 1er Janvier 2026 00:00:00 à Paris
+            return new Date("2026-01-01T00:00:00+01:00").getTime();
+        }
+
+        function update() {
             const now = Date.now();
-            // Si mode test, on compte 10s à partir du clic, sinon 1er Janvier
-            const target = isTest ? testTarget : new Date('January 1, 2026 00:00:00').getTime();
+            const target = isTest ? testTarget : getParisTime();
             const diff = target - now;
 
             if (diff <= 0) {
-                countdownEl.style.display = 'none';
+                document.getElementById('timer-container').style.display = 'none';
                 messageEl.style.display = 'block';
-                if (lastSecond !== 0) {
+                if (lastSecondTriggered !== 0) {
                     speak("Bonne année deux mille vingt-six !");
-                    lastSecond = 0;
+                    lastSecondTriggered = 0;
                 }
                 return;
             }
 
             const totalSeconds = Math.floor(diff / 1000);
+            const milliseconds = Math.floor(diff % 1000);
+
+            // Affichage principal
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
             
-            // On ne déclenche l'action que si la seconde a CHANGÉ
-            if (totalSeconds !== lastSecond) {
-                lastSecond = totalSeconds;
+            countdownEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            msEl.innerText = milliseconds.toString().padStart(3, '0');
 
-                // Affichage
-                if (totalSeconds > 60 && !isTest) {
-                    const mins = Math.floor(totalSeconds / 60);
-                    const secs = totalSeconds % 60;
-                    countdownEl.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-                } else {
-                    countdownEl.innerText = totalSeconds;
-                }
-
-                // Voix et Flash (10 secondes finales)
-                if (totalSeconds <= 10) {
-                    speak(totalSeconds.toString());
-                    document.body.classList.add('flash');
-                    setTimeout(() => document.body.classList.remove('flash'), 50);
-                }
+            // Logique vocale (10 dernières secondes)
+            if (totalSeconds <= 10 && totalSeconds !== lastSecondTriggered) {
+                lastSecondTriggered = totalSeconds;
+                speak(totalSeconds.toString());
+                document.body.classList.add('flash');
+                setTimeout(() => document.body.classList.remove('flash'), 80);
             }
 
-            requestAnimationFrame(tick);
+            requestAnimationFrame(update);
         }
 
         document.getElementById('startBtn').onclick = () => {
             isTest = false;
-            lastSecond = -1;
+            lastSecondTriggered = -1;
             document.querySelector('.controls').style.display = 'none';
-            tick();
+            update();
         };
 
         document.getElementById('testBtn').onclick = () => {
             isTest = true;
-            testTarget = Date.now() + 11000; // 11 secondes pour voir le "10"
-            lastSecond = -1;
+            testTarget = Date.now() + 11000;
+            lastSecondTriggered = -1;
             messageEl.style.display = 'none';
-            countdownEl.style.display = 'block';
-            tick();
+            document.getElementById('timer-container').style.display = 'block';
+            speak("Test du fuseau Paris");
+            update();
         };
     </script>
 </body>
