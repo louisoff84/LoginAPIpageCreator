@@ -3,84 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réveillon 2026 - Live</title>
+    <title>Réveillon 2026 - Test & Live</title>
     <style>
         body {
             background: #050505;
             color: white;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            transition: background 0.2s;
+            overflow: hidden;
+            transition: background 0.1s;
         }
 
         #countdown {
             font-size: 8rem;
             font-weight: 900;
-            letter-spacing: -2px;
+            text-align: center;
         }
 
-        .unit { font-size: 2rem; color: #777; margin-left: 10px; }
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            gap: 15px;
+        }
 
-        #startBtn {
-            padding: 20px 40px;
-            font-size: 1.5rem;
-            background: linear-gradient(45deg, #ff0055, #ffcc00);
+        button {
+            padding: 15px 25px;
+            font-size: 1rem;
             border: none;
-            border-radius: 50px;
-            color: black;
-            font-weight: bold;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(255, 0, 85, 0.3);
+            font-weight: bold;
+            transition: transform 0.2s;
         }
+
+        #startBtn { background: #00ff88; color: black; }
+        #testBtn { background: #333; color: white; border: 1px solid #555; }
+        
+        button:hover { transform: scale(1.05); }
 
         .happy-new-year {
             display: none;
             font-size: 5rem;
             text-align: center;
-            background: linear-gradient(to right, #ef5350, #f48fb1, #7e57c2, #2196f3, #26c6da, #43a047, #eeff41, #f9a825, #ff5722);
+            background: linear-gradient(45deg, #f3ec78, #af4261);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: rainbow 2s infinite linear;
+            animation: pulse 1s infinite alternate;
         }
 
-        @keyframes rainbow {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
         }
 
-        .flash { background: #fff !important; }
+        .flash { background: white !important; }
     </style>
 </head>
 <body>
 
-    <button id="startBtn">DÉMARRER LA SOIRÉE</button>
-    <div id="countdown"></div>
-    <div id="newYearMessage" class="happy-new-year">✨ 2026 ✨<br>BONNE ANNÉE !</div>
+    <div id="countdown">Cliquez sur Démarrer</div>
+    <div id="newYearMessage" class="happy-new-year">🎆 2026 🎆<br>BONNE ANNÉE !</div>
+
+    <div class="controls">
+        <button id="startBtn">DÉMARRER LE LIVE</button>
+        <button id="testBtn">TESTER LE FINAL (10s)</button>
+    </div>
 
     <script>
         const countdownEl = document.getElementById('countdown');
         const messageEl = document.getElementById('newYearMessage');
         const startBtn = document.getElementById('startBtn');
-        const synth = window.speechSynthesis;
+        const testBtn = document.getElementById('testBtn');
+        
+        let isTestMode = false;
+        let testStartTime = 0;
         let voiceTriggered = {};
 
         function speak(text) {
+            window.speechSynthesis.cancel(); // Stoppe la voix en cours pour éviter les décalages
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'fr-FR';
-            utter.pitch = 1;
-            utter.rate = 1.1; // Un peu plus rapide pour le rythme
-            synth.speak(utter);
+            utter.rate = 1.2;
+            window.speechSynthesis.speak(utter);
         }
 
         function update() {
-            const now = new Date();
-            const target = new Date('January 1, 2026 00:00:00');
-            const diff = target - now;
+            let diff;
+            
+            if (isTestMode) {
+                const elapsed = (Date.now() - testStartTime) / 1000;
+                diff = (11 - elapsed) * 1000; // Simule un décompte de 11 secondes
+            } else {
+                const now = new Date();
+                const target = new Date('January 1, 2026 00:00:00');
+                diff = target - now;
+            }
 
             if (diff <= 0) {
                 countdownEl.style.display = 'none';
@@ -89,7 +112,6 @@
                     speak("Bonne année deux mille vingt-six !");
                     voiceTriggered['final'] = true;
                 }
-                document.body.style.background = "#000";
                 return;
             }
 
@@ -97,22 +119,17 @@
             const minutes = Math.floor(secs / 60);
             const displaySecs = secs % 60;
 
-            // Affichage principal
-            countdownEl.innerHTML = `${minutes}<span class="unit">m</span> ${displaySecs}<span class="unit">s</span>`;
+            countdownEl.innerText = (secs > 60) ? `${minutes}m ${displaySecs}s` : displaySecs;
 
-            // Décompte final (10 dernières secondes)
+            // Voix IA pour les 10 dernières secondes
             if (secs <= 10 && secs > 0) {
                 if (!voiceTriggered[secs]) {
                     speak(secs.toString());
                     voiceTriggered[secs] = true;
                     
-                    // Flash visuel
+                    // Effet visuel
                     document.body.classList.add('flash');
                     setTimeout(() => document.body.classList.remove('flash'), 100);
-                    
-                    // Agrandir le chiffre
-                    countdownEl.style.transform = "scale(1.5)";
-                    setTimeout(() => countdownEl.style.transform = "scale(1)", 200);
                 }
             }
             
@@ -120,7 +137,19 @@
         }
 
         startBtn.onclick = () => {
-            startBtn.style.display = 'none';
+            isTestMode = false;
+            voiceTriggered = {};
+            document.querySelector('.controls').style.display = 'none';
+            update();
+        };
+
+        testBtn.onclick = () => {
+            isTestMode = true;
+            testStartTime = Date.now();
+            voiceTriggered = {};
+            messageEl.style.display = 'none';
+            countdownEl.style.display = 'block';
+            speak("Lancement du test");
             update();
         };
     </script>
