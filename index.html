@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>CraftPick API | Créez votre Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-main">
+    <div class="hero">
+        <h1>CraftPick <span>Login API</span></h1>
+        <p>Générez une page d'authentification pro pour votre projet.</p>
+        
+        <div class="config-box">
+            <input type="text" id="name-in" placeholder="Nom de votre projet">
+            <select id="theme-in">
+                <option value="theme-dark">Thème Sombre</option>
+                <option value="theme-cyber">Thème Cyberpunk</option>
+                <option value="theme-mc">Thème Minecraft</option>
+                <option value="theme-light">Thème Clair</option>
+            </select>
+            <button onclick="generate()">Générer mon lien</button>
+        </div>
+        <p id="result-link"></p>
+    </div>
+    <script>
+        function generate() {
+            const name = document.getElementById('name-in').value || 'Projet';
+            const theme = document.getElementById('theme-in').value;
+            const url = `${window.location.origin}/${name}?theme=${theme}`;
+            document.getElementById('result-link').innerHTML = `Lien : <a href="${url}">${url}</a>`;
+        }
+    </script>
+</body>
+</html>
