@@ -2,127 +2,59 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réveillon Paris 2026 - Musique Live</title>
+    <title>2026 - FINAL</title>
     <style>
-        body {
-            background: #000;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        #timer-container { text-align: center; z-index: 10; }
-        #countdown { font-size: 15vw; font-weight: 900; color: #ff0055; }
-        
-        #youtube-player {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.6;
-            display: none;
-        }
-
-        .controls { position: fixed; bottom: 30px; z-index: 20; display: flex; gap: 10px; }
-        
-        button {
-            padding: 20px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        #startBtn { background: linear-gradient(45deg, #00ff88, #00bd68); color: #000; }
-        #testBtn { background: #333; color: white; }
-
-        .happy-new-year {
-            display: none;
-            font-size: 8vw;
-            text-align: center;
-            z-index: 10;
-            color: gold;
-            text-shadow: 0 0 50px #ffcc00;
-            animation: zoomIn 1s ease-out;
-        }
-
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #countdown { font-size: 20vw; font-weight: bold; }
         .flash { background: white !important; }
+        #btn { padding: 20px 40px; font-size: 2rem; background: #00ff88; border: none; cursor: pointer; position: absolute; z-index: 100; }
+        #yt { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.5; pointer-events: none; display: none; }
     </style>
 </head>
 <body>
 
-    <div id="youtube-player"></div>
-
-    <div id="timer-container">
-        <div id="countdown">--</div>
-    </div>
-    
-    <div id="newYearMessage" class="happy-new-year">🎆 2026 🎆<br>BONNE ANNÉE !</div>
-
-    <div class="controls">
-        <button id="startBtn">Démarrer le Direct (Paris)</button>
-        <button id="testBtn">Test (10s)</button>
-    </div>
+    <button id="btn" onclick="start()">DÉMARRER LE LIVE</button>
+    <div id="countdown">--</div>
+    <div id="yt"></div>
 
     <script>
-        let player;
         const countdownEl = document.getElementById('countdown');
-        const messageEl = document.getElementById('newYearMessage');
-        const synth = window.speechSynthesis;
+        let player;
         let lastSec = -1;
-        let isTest = false;
-        let testTarget = 0;
 
-        // Charger l'API YouTube
-        const tag = document.createElement('script');
+        // Charger YouTube proprement
+        var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, lastSec);
+        document.head.appendChild(tag);
 
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtube-player', {
-                height: '100%',
-                width: '100%',
-                videoId: '3Uo0JAUWijM', // Musique festive Bonne Année
-                playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1 },
-                events: { 'onReady': onPlayerReady }
+            player = new YT.Player('yt', {
+                height: '100%', width: '100%',
+                videoId: '3Uo0JAUWijM', // Musique festive
+                events: { 'onReady': () => console.log("YT Prêt") }
             });
         }
 
-        function onPlayerReady(event) {
-            console.log("YouTube Prêt");
+        function speak(t) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'fr-FR';
+            window.speechSynthesis.speak(u);
         }
 
-        function speak(text) {
-            synth.cancel();
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'fr-FR';
-            utter.rate = 1.3;
-            synth.speak(utter);
+        function start() {
+            document.getElementById('btn').style.display = 'none';
+            update();
         }
 
         function update() {
-            const now = Date.now();
-            const target = isTest ? testTarget : new Date("2026-01-01T00:00:00+01:00").getTime();
-            const diff = target - now;
-
+            const diff = new Date("2026-01-01T00:00:00+01:00").getTime() - Date.now();
+            
             if (diff <= 0) {
-                document.getElementById('timer-container').style.display = 'none';
-                messageEl.style.display = 'block';
-                document.getElementById('youtube-player').style.display = 'block';
-                
+                countdownEl.innerHTML = "2026 !";
+                document.getElementById('yt').style.display = 'block';
                 if (lastSec !== 0) {
-                    player.playVideo(); // Lancer la musique !
+                    player.playVideo();
                     speak("Bonne année deux mille vingt-six !");
                     lastSec = 0;
                 }
@@ -130,33 +62,16 @@
             }
 
             const secs = Math.floor(diff / 1000);
-            countdownEl.innerText = (secs > 60 && !isTest) ? Math.floor(secs/60) + "m " + (secs%60) + "s" : secs;
+            countdownEl.innerText = secs > 60 ? Math.floor(secs/60) + "m " + (secs%60) + "s" : secs;
 
             if (secs <= 10 && secs !== lastSec) {
                 lastSec = secs;
                 speak(secs.toString());
                 document.body.classList.add('flash');
-                setTimeout(() => document.body.classList.remove('flash'), 70);
+                setTimeout(() => document.body.classList.remove('flash'), 50);
             }
             requestAnimationFrame(update);
         }
-
-        document.getElementById('startBtn').onclick = () => {
-            document.querySelector('.controls').style.display = 'none';
-            update();
-        };
-
-        document.getElementById('testBtn').onclick = () => {
-            isTest = true;
-            testTarget = Date.now() + 11000;
-            lastSec = -1;
-            messageEl.style.display = 'none';
-            document.getElementById('timer-container').style.display = 'block';
-            document.getElementById('youtube-player').style.display = 'none';
-            player.pauseVideo();
-            player.seekTo(0);
-            update();
-        };
     </script>
 </body>
 </html>
