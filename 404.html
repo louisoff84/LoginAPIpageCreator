@@ -3,33 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion | CraftPick API</title>
+    <title>Login | Multi-Auth API</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body id="body-trigger">
+<body id="app-body">
     <div class="auth-card">
         <header>
-            <h1 id="site-title">Chargement...</h1>
-            <div id="site-tag">Instance Sécurisée</div>
+            <h1 id="display-name">Chargement...</h1>
+            <span class="badge">Sécurisé par CraftPick</span>
         </header>
 
-        <div class="qr-box">
-            <img id="qr-code" src="" alt="QR Login">
+        <div class="qr-container">
+            <img id="qr-img" src="" alt="QR Code">
+            <p>Connexion rapide mobile</p>
         </div>
 
-        <div class="oauth-row">
-            <button class="oa google" onclick="social('google')"><i class="fab fa-google"></i></button>
-            <button class="oa discord" onclick="social('discord')"><i class="fab fa-discord"></i></button>
-            <button class="oa github" onclick="social('github')"><i class="fab fa-github"></i></button>
+        <div class="social-grid">
+            <button class="s-btn ggl" title="Google"><i class="fab fa-google"></i></button>
+            <button class="s-btn dsc" title="Discord"><i class="fab fa-discord"></i></button>
+            <button class="s-btn gth" title="GitHub"><i class="fab fa-github"></i></button>
+            <button class="s-btn glb" title="GitLab"><i class="fab fa-gitlab"></i></button>
         </div>
 
-        <div class="separator">OU AZURIOM</div>
+        <div class="divider"><span>OU AUTHENTIFICATION MC</span></div>
 
-        <form id="az-form">
-            <input type="text" id="az-u" placeholder="Utilisateur" required>
-            <input type="password" id="az-p" placeholder="Mot de passe" required>
-            <button type="submit" class="btn-main">Se connecter</button>
+        <form id="az-login">
+            <div class="field">
+                <input type="text" id="az-user" placeholder="Pseudo Minecraft" required>
+            </div>
+            <div class="field">
+                <input type="password" id="az-pass" placeholder="Mot de passe" required>
+            </div>
+            <button type="submit" class="submit-btn">Se connecter via Azuriom</button>
         </form>
     </div>
     <script src="script.js"></script>
