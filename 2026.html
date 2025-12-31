@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réveillon 2026 - Test & Live</title>
+    <title>2026 - Précision Atomique</title>
     <style>
         body {
-            background: #050505;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            font-family: 'Helvetica', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -16,141 +16,124 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            transition: background 0.1s;
         }
 
         #countdown {
-            font-size: 8rem;
+            font-size: clamp(5rem, 20vw, 12rem);
             font-weight: 900;
-            text-align: center;
+            font-variant-numeric: tabular-nums; /* Évite que les chiffres bougent */
         }
 
-        .controls {
-            position: absolute;
-            bottom: 30px;
-            display: flex;
-            gap: 15px;
-        }
-
+        .controls { position: fixed; bottom: 20px; display: flex; gap: 10px; }
+        
         button {
-            padding: 15px 25px;
-            font-size: 1rem;
+            padding: 12px 24px;
+            border-radius: 8px;
             border: none;
-            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.2s;
         }
 
-        #startBtn { background: #00ff88; color: black; }
-        #testBtn { background: #333; color: white; border: 1px solid #555; }
-        
-        button:hover { transform: scale(1.05); }
+        #startBtn { background: #00ff88; }
+        #testBtn { background: #333; color: white; }
 
-        .happy-new-year {
+        .new-year {
             display: none;
             font-size: 5rem;
             text-align: center;
-            background: linear-gradient(45deg, #f3ec78, #af4261);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: pulse 1s infinite alternate;
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            animation: zoom 0.5s ease-out;
         }
 
-        @keyframes pulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
-        }
-
+        @keyframes zoom { from { transform: scale(0.5); } to { transform: scale(1); } }
         .flash { background: white !important; }
     </style>
 </head>
 <body>
 
-    <div id="countdown">Cliquez sur Démarrer</div>
-    <div id="newYearMessage" class="happy-new-year">🎆 2026 🎆<br>BONNE ANNÉE !</div>
+    <div id="countdown">PRÊT ?</div>
+    <div id="newYearMessage" class="new-year">✨ 2026 ✨<br>BONNE ANNÉE !</div>
 
     <div class="controls">
-        <button id="startBtn">DÉMARRER LE LIVE</button>
-        <button id="testBtn">TESTER LE FINAL (10s)</button>
+        <button id="startBtn">DÉMARRER LE DIRECT</button>
+        <button id="testBtn">TESTER (10s)</button>
     </div>
 
     <script>
         const countdownEl = document.getElementById('countdown');
         const messageEl = document.getElementById('newYearMessage');
-        const startBtn = document.getElementById('startBtn');
-        const testBtn = document.getElementById('testBtn');
+        const synth = window.speechSynthesis;
         
-        let isTestMode = false;
-        let testStartTime = 0;
-        let voiceTriggered = {};
+        let lastSecond = -1;
+        let isTest = false;
+        let testTarget = 0;
 
         function speak(text) {
-            window.speechSynthesis.cancel(); // Stoppe la voix en cours pour éviter les décalages
+            // Force l'arrêt de la voix précédente pour éviter le cumul
+            synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'fr-FR';
-            utter.rate = 1.2;
-            window.speechSynthesis.speak(utter);
+            utter.rate = 1.3; // Un peu plus vif
+            synth.speak(utter);
         }
 
-        function update() {
-            let diff;
-            
-            if (isTestMode) {
-                const elapsed = (Date.now() - testStartTime) / 1000;
-                diff = (11 - elapsed) * 1000; // Simule un décompte de 11 secondes
-            } else {
-                const now = new Date();
-                const target = new Date('January 1, 2026 00:00:00');
-                diff = target - now;
-            }
+        function tick() {
+            const now = Date.now();
+            // Si mode test, on compte 10s à partir du clic, sinon 1er Janvier
+            const target = isTest ? testTarget : new Date('January 1, 2026 00:00:00').getTime();
+            const diff = target - now;
 
             if (diff <= 0) {
                 countdownEl.style.display = 'none';
                 messageEl.style.display = 'block';
-                if (!voiceTriggered['final']) {
+                if (lastSecond !== 0) {
                     speak("Bonne année deux mille vingt-six !");
-                    voiceTriggered['final'] = true;
+                    lastSecond = 0;
                 }
                 return;
             }
 
-            const secs = Math.floor(diff / 1000);
-            const minutes = Math.floor(secs / 60);
-            const displaySecs = secs % 60;
+            const totalSeconds = Math.floor(diff / 1000);
+            
+            // On ne déclenche l'action que si la seconde a CHANGÉ
+            if (totalSeconds !== lastSecond) {
+                lastSecond = totalSeconds;
 
-            countdownEl.innerText = (secs > 60) ? `${minutes}m ${displaySecs}s` : displaySecs;
+                // Affichage
+                if (totalSeconds > 60 && !isTest) {
+                    const mins = Math.floor(totalSeconds / 60);
+                    const secs = totalSeconds % 60;
+                    countdownEl.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+                } else {
+                    countdownEl.innerText = totalSeconds;
+                }
 
-            // Voix IA pour les 10 dernières secondes
-            if (secs <= 10 && secs > 0) {
-                if (!voiceTriggered[secs]) {
-                    speak(secs.toString());
-                    voiceTriggered[secs] = true;
-                    
-                    // Effet visuel
+                // Voix et Flash (10 secondes finales)
+                if (totalSeconds <= 10) {
+                    speak(totalSeconds.toString());
                     document.body.classList.add('flash');
-                    setTimeout(() => document.body.classList.remove('flash'), 100);
+                    setTimeout(() => document.body.classList.remove('flash'), 50);
                 }
             }
-            
-            requestAnimationFrame(update);
+
+            requestAnimationFrame(tick);
         }
 
-        startBtn.onclick = () => {
-            isTestMode = false;
-            voiceTriggered = {};
+        document.getElementById('startBtn').onclick = () => {
+            isTest = false;
+            lastSecond = -1;
             document.querySelector('.controls').style.display = 'none';
-            update();
+            tick();
         };
 
-        testBtn.onclick = () => {
-            isTestMode = true;
-            testStartTime = Date.now();
-            voiceTriggered = {};
+        document.getElementById('testBtn').onclick = () => {
+            isTest = true;
+            testTarget = Date.now() + 11000; // 11 secondes pour voir le "10"
+            lastSecond = -1;
             messageEl.style.display = 'none';
             countdownEl.style.display = 'block';
-            speak("Lancement du test");
-            update();
+            tick();
         };
     </script>
 </body>
