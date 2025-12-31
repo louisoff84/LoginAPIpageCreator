@@ -2,32 +2,38 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>CraftPick API | Créez votre Login</title>
+    <title>CraftPick API | Créateur de Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-main">
     <div class="hero">
         <h1>CraftPick <span>Login API</span></h1>
-        <p>Générez une page d'authentification pro pour votre projet.</p>
+        <p>Générez une interface de connexion unique pour votre serveur ou site.</p>
         
         <div class="config-box">
-            <input type="text" id="name-in" placeholder="Nom de votre projet">
+            <input type="text" id="site-in" placeholder="Nom de votre projet (ex: MySurvival)">
             <select id="theme-in">
-                <option value="theme-dark">Thème Sombre</option>
-                <option value="theme-cyber">Thème Cyberpunk</option>
-                <option value="theme-mc">Thème Minecraft</option>
-                <option value="theme-light">Thème Clair</option>
+                <option value="theme-dark">🌌 Mode Sombre</option>
+                <option value="theme-cyber">⚡ Mode Cyberpunk</option>
+                <option value="theme-mc">🧱 Mode Minecraft</option>
+                <option value="theme-light">☀️ Mode Clair</option>
             </select>
-            <button onclick="generate()">Générer mon lien</button>
+            <button onclick="generate()">Créer mon API de Login</button>
         </div>
-        <p id="result-link"></p>
+
+        <div id="result-area" class="hidden">
+            <p>Votre URL prête à l'emploi :</p>
+            <code id="res-url"></code>
+            <button onclick="window.location.href=document.getElementById('res-url').innerText" class="btn-secondary">Tester la page →</button>
+        </div>
     </div>
     <script>
         function generate() {
-            const name = document.getElementById('name-in').value || 'Projet';
+            const name = encodeURIComponent(document.getElementById('site-in').value || 'CraftPick');
             const theme = document.getElementById('theme-in').value;
-            const url = `${window.location.origin}/${name}?theme=${theme}`;
-            document.getElementById('result-link').innerHTML = `Lien : <a href="${url}">${url}</a>`;
+            const finalUrl = `${window.location.origin}/${name}?theme=${theme}`;
+            document.getElementById('res-url').innerText = finalUrl;
+            document.getElementById('result-area').classList.remove('hidden');
         }
     </script>
 </body>
