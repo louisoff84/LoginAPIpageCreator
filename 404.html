@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentification | CraftPick API</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="loader" class="loader"></div>
+
+    <div class="auth-card hidden" id="main-card">
+        <header>
+            <h1 id="site-name">CraftPick</h1>
+            <div class="status-badge" id="site-id">Instance : Default</div>
+        </header>
+
+        <div class="qr-container">
+            <div id="qr-code">
+                <img src="" id="qr-img" alt="QR Login">
+            </div>
+            <p>Scannez pour une connexion rapide</p>
+        </div>
+
+        <div class="separator"><span>OU</span></div>
+
+        <div class="oauth-grid">
+            <button class="oa-btn google" onclick="auth('google')"><i class="fab fa-google"></i></button>
+            <button class="oa-btn discord" onclick="auth('discord')"><i class="fab fa-discord"></i></button>
+            <button class="oa-btn github" onclick="auth('github')"><i class="fab fa-github"></i></button>
+            <button class="oa-btn gitlab" onclick="auth('gitlab')"><i class="fab fa-gitlab"></i></button>
+        </div>
+
+        <div class="azuriom-area">
+            <button class="btn-az-toggle" onclick="document.getElementById('az-form').classList.toggle('active')">
+                <i class="fas fa-cube"></i> Connexion via CraftPick MC
+            </button>
+            <form id="az-form" class="az-form">
+                <input type="text" id="az-user" placeholder="Pseudo Azuriom" required>
+                <input type="password" id="az-pass" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter au CMS</button>
+            </form>
+        </div>
+
+        <div id="feedback"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
