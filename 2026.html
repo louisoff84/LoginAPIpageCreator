@@ -2,75 +2,75 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>2026 - FINAL</title>
+    <title>URGENCE 2026</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        #countdown { font-size: 20vw; font-weight: bold; }
-        .flash { background: white !important; }
-        #btn { padding: 20px 40px; font-size: 2rem; background: #00ff88; border: none; cursor: pointer; position: absolute; z-index: 100; }
-        #yt { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.5; pointer-events: none; display: none; }
+        body { background: #000; color: #fff; font-family: 'Arial Black', sans-serif; margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #btn { position: fixed; inset: 0; background: #ff0055; color: #fff; font-size: 50px; border: none; z-index: 999; cursor: pointer; }
+        #countdown { font-size: 35vw; line-height: 1; }
+        #msg { display: none; font-size: 10vw; text-align: center; color: gold; animation: blink 0.5s infinite; }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0; } }
+        .flash { background: white !important; color: black !important; }
     </style>
 </head>
 <body>
 
-    <button id="btn" onclick="start()">DÉMARRER LE LIVE</button>
+    <button id="btn" onclick="start()">CLIQUEZ ICI POUR LE SON</button>
+    
     <div id="countdown">--</div>
-    <div id="yt"></div>
+    <div id="msg">✨ BONNE ANNÉE 2026 ✨</div>
 
     <script>
-        const countdownEl = document.getElementById('countdown');
-        let player;
-        let lastSec = -1;
-
-        // Charger YouTube proprement
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('yt', {
-                height: '100%', width: '100%',
-                videoId: '3Uo0JAUWijM', // Musique festive
-                events: { 'onReady': () => console.log("YT Prêt") }
-            });
-        }
+        const countEl = document.getElementById('countdown');
+        const msgEl = document.getElementById('msg');
+        let lastS = -1;
 
         function speak(t) {
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(t);
             u.lang = 'fr-FR';
+            u.rate = 1.2;
             window.speechSynthesis.speak(u);
         }
 
         function start() {
             document.getElementById('btn').style.display = 'none';
-            update();
+            // Pré-chauffe la voix
+            speak(""); 
+            tick();
         }
 
-        function update() {
-            const diff = new Date("2026-01-01T00:00:00+01:00").getTime() - Date.now();
-            
+        function tick() {
+            const now = Date.now();
+            const target = new Date("2026-01-01T00:00:00+01:00").getTime();
+            const diff = target - now;
+
             if (diff <= 0) {
-                countdownEl.innerHTML = "2026 !";
-                document.getElementById('yt').style.display = 'block';
-                if (lastSec !== 0) {
-                    player.playVideo();
+                countEl.style.display = 'none';
+                msgEl.style.display = 'block';
+                document.body.style.background = "linear-gradient(45deg, #ff0055, #ffcc00)";
+                if (lastS !== 0) {
                     speak("Bonne année deux mille vingt-six !");
-                    lastSec = 0;
+                    lastS = 0;
                 }
                 return;
             }
 
-            const secs = Math.floor(diff / 1000);
-            countdownEl.innerText = secs > 60 ? Math.floor(secs/60) + "m " + (secs%60) + "s" : secs;
+            const s = Math.floor(diff / 1000);
+            
+            // Affichage simple
+            countEl.innerText = s;
 
-            if (secs <= 10 && secs !== lastSec) {
-                lastSec = secs;
-                speak(secs.toString());
+            // Décompte vocal 10 secondes
+            if (s <= 10 && s !== lastS) {
+                lastS = s;
+                speak(s.toString());
+                
+                // Effet de flash
                 document.body.classList.add('flash');
-                setTimeout(() => document.body.classList.remove('flash'), 50);
+                setTimeout(() => document.body.classList.remove('flash'), 100);
             }
-            requestAnimationFrame(update);
+
+            requestAnimationFrame(tick);
         }
     </script>
 </body>
